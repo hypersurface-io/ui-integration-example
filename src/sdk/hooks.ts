@@ -1,11 +1,3 @@
-/**
- * Hypersurface SDK — React Hook Wrappers
- *
- * Thin hooks around the pure async functions in api.ts.
- * Each hook manages its own loading/error/data state using useState/useEffect.
- * No external state management or context providers required.
- */
-
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { ethers } from "ethers"
 import { BigNumber as BN } from "bignumber.js"
@@ -27,7 +19,6 @@ import {
 
 /**
  * Fetch available underlying assets with current prices.
- * Auto-fetches on mount and optionally refetches on an interval.
  */
 export function useAssets(
   options: { refetchInterval?: number } = {},
@@ -53,12 +44,10 @@ export function useAssets(
   useEffect(() => {
     mountedRef.current = true
     load()
-
     let interval: ReturnType<typeof setInterval> | undefined
     if (options.refetchInterval && options.refetchInterval > 0) {
       interval = setInterval(load, options.refetchInterval)
     }
-
     return () => {
       mountedRef.current = false
       if (interval) clearInterval(interval)
@@ -70,7 +59,6 @@ export function useAssets(
 
 /**
  * Fetch options series for a given asset and strategy.
- * Refetches when asset or strategyType changes.
  */
 export function useSeries(
   asset: UnderlyingAsset | undefined,
@@ -98,17 +86,15 @@ export function useSeries(
     } finally {
       if (mountedRef.current) setLoading(false)
     }
-  }, [asset?.symbol, asset?.chainId, strategyType]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [asset?.symbol, strategyType]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     mountedRef.current = true
     load()
-
     let interval: ReturnType<typeof setInterval> | undefined
     if (options.refetchInterval && options.refetchInterval > 0) {
       interval = setInterval(load, options.refetchInterval)
     }
-
     return () => {
       mountedRef.current = false
       if (interval) clearInterval(interval)
@@ -154,9 +140,7 @@ export function useAllowance(
   useEffect(() => {
     mountedRef.current = true
     load()
-
     const interval = setInterval(load, 10_000)
-
     return () => {
       mountedRef.current = false
       clearInterval(interval)
@@ -168,7 +152,6 @@ export function useAllowance(
 
 /**
  * Fetch protocol contract addresses from the AddressBook.
- * Caches result — only fetches once per provider instance.
  */
 export function useAddresses(
   provider: ethers.providers.Provider | undefined,

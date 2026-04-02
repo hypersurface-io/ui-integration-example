@@ -1,24 +1,22 @@
-/**
- * Hypersurface SDK
- *
- * Everything you need to integrate Locked Orders into your app.
- * Copy this entire `sdk/` directory into your project.
- *
- * Quick start:
- *   import { CHAIN_CONFIG, fetchAssets, fetchSeries, useAssets, useSeries } from './sdk'
- */
+// Config
+export { CHAIN_CONFIG, PROTOCOL_TO_CONTRACT_SYMBOL } from "./config"
 
-// Config — chain settings, token addresses, API endpoints
-export * from "./config"
+// Types
+export type {
+  UnderlyingAsset,
+  Series,
+  SeriesPosition,
+  StrategyType,
+} from "./types"
 
-// Types — all TypeScript interfaces
-export * from "./types"
+// API — pure async functions
+export {
+  fetchAssets,
+  fetchSeries,
+  fetchQuote,
+  executeTrade,
+  approveToken,
+} from "./api"
 
-// GraphQL queries — subgraph query strings
-export * from "./queries"
-
-// API — pure async functions (framework-agnostic)
-export * from "./api"
-
-// Hooks — React hook wrappers (useState/useEffect based)
-export * from "./hooks"
+// Hooks — React hook wrappers
+export { useAssets, useSeries, useAllowance, useAddresses } from "./hooks"

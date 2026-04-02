@@ -1,16 +1,8 @@
-/**
- * Hypersurface SDK Types
- *
- * All TypeScript interfaces for interacting with the Hypersurface protocol.
- * These types are used by both the pure async functions and the React hooks.
- */
-
 import { BigNumber as BN } from "bignumber.js"
 
 export type OptionSide = "Buy" | "Sell"
 export type OptionType = "Call" | "Put"
 
-/** Strategy type derived from the option configuration */
 export const StrategyType = {
   CoveredCall: "CoveredCall",
   CashSecuredPut: "CashSecuredPut",
@@ -21,75 +13,25 @@ export type StrategyType = (typeof StrategyType)[keyof typeof StrategyType]
 export type UnderlyingAsset = {
   id: string // Contract address
   symbol: string // Protocol symbol (e.g., "ETH")
-  name: string
   decimals: number
   price: number // Current USD price
-  poolAddress: string
-  chainId: number
-  chainName: string
-  chainSymbol: string
-  enabled: boolean
-  // Strike price range config
-  strikeMinPercent: number
-  strikeMaxPercent: number
-  strikeIncrement: number
-  // Expiration config
-  expirationMonths: number
-  expirationQuarters: number
-  dailyAllowed: boolean
-  // Related assets
-  collateralAsset: {
-    id: string
-    symbol: string
-    name: string
-    decimals: number
-  }
-  strikeAsset: {
-    id: string
-    symbol: string
-    name: string
-    decimals: number
-  }
+  collateralAsset: { id: string; symbol: string }
+  strikeAsset: { symbol: string }
 }
 
 /** An options series with pricing data */
 export type Series = {
-  id: string // Unique identifier (e.g., "ETH-04APR26-2500-C")
+  id: string // e.g., "ETH-04APR26-2500-C"
   poolAddress: string
-
-  underlyingTokenAddress: string
   underlyingTokenSymbol: string
-  underlyingTokenName: string
-  underlyingTokenDecimals: number
-
   collateralTokenAddress: string
   collateralTokenSymbol: string
-  collateralTokenName: string
   collateralTokenDecimals: number
-
-  strikeTokenAddress: string
   strikeTokenSymbol: string
-  strikeTokenName: string
-  strikeTokenDecimals: number
-
-  pair: string
   strikePrice: number
   expiration: number // UNIX timestamp
-  underlyingAssetPrice: number
   type: OptionType
   side: OptionSide
-  premium: number
-  bid: number
-  ask: number
-  greeks: {
-    delta: number
-    gamma: number
-    vega: number
-    theta: number
-    impliedVolatility: number
-    riskFreeRate: number
-  }
-  probabilityOTM: number
   collateralRewardAPR: BN
 }
 
@@ -101,7 +43,7 @@ export type SeriesPosition = {
   side: OptionSide
   expiration: number
   strikePrice: number
-  size: string // Amount as string for precision
+  size: string
 }
 
 /** Order data sent to the quote API */
@@ -116,26 +58,12 @@ export type SeriesOrderData = {
 
 /** Token allowance check result */
 export type AllowanceResult = {
-  currentSpendAllowance: BN
-  requiredSpendAllowance: BN
   isSpendAllowed: boolean
 }
 
 /** Protocol addresses from the AddressBook contract */
 export type ProtocolAddresses = {
-  controller: string
   tradeExecutor: string
-  marginCalculator: string
-}
-
-/** Trade execution result */
-export type TradeResult = {
-  txHash: string
-  underlyingTokenSymbol: string
-  strikePrice: number
-  expiration: number
-  type: OptionType
-  side: OptionSide
 }
 
 /** Hook return pattern */

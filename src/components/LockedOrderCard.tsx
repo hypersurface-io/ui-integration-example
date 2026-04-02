@@ -7,20 +7,15 @@ import { useAccount } from "wagmi"
 import {
   useAssets,
   useSeries,
+  useAllowance,
+  useAddresses,
   fetchQuote,
   executeTrade,
   approveToken,
-  fetchVaultForSeries,
   PROTOCOL_TO_CONTRACT_SYMBOL,
 } from "../sdk"
-import type {
-  UnderlyingAsset,
-  Series,
-  SeriesPosition,
-  StrategyType,
-} from "../sdk"
+import type { UnderlyingAsset, Series, StrategyType } from "../sdk"
 import { useEthersSigner, useEthersProvider } from "../App"
-import { useAllowance, useAddresses } from "../sdk"
 import { OutcomeCard } from "./OutcomeCard"
 import { LockedOrderSuccess } from "./LockedOrderSuccess"
 
@@ -248,24 +243,12 @@ export const LockedOrderCard: React.FC = () => {
     setTradeError("")
 
     try {
-      // Build series position
-      const seriesPosition: SeriesPosition = {
-        id: selectedSeries.id,
-        underlyingTokenSymbol: selectedSeries.underlyingTokenSymbol,
-        type: selectedSeries.type,
-        side: selectedSeries.side,
-        expiration: selectedSeries.expiration,
-        strikePrice: selectedSeries.strikePrice,
-        size: amount,
-      }
-
-      // Build order data
-      // Order leg amounts use 8 decimals (STRIKE_PRICE_DECIMALS), not token decimals
+      // Build order data — leg amounts use 8 decimals (STRIKE_PRICE_DECIMALS)
       const STRIKE_PRICE_DECIMALS = 8
-      const sizeInContracts = new BN(amount).decimalPlaces(6, BN.ROUND_DOWN)
-      const rawAmount = sizeInContracts
+      const rawAmount = new BN(amount)
+        .decimalPlaces(6, BN.ROUND_DOWN)
         .multipliedBy(new BN(10).pow(STRIKE_PRICE_DECIMALS))
-        .negated() // Sell side
+        .negated()
         .decimalPlaces(0, BN.ROUND_DOWN)
         .toFixed()
 
@@ -286,9 +269,6 @@ export const LockedOrderCard: React.FC = () => {
         ],
       }
 
-      // Fetch signed quote
-      const signedOrder = await fetchQuote(orderData, true, selectedAsset)
-
       // Check allowance and approve if needed
       if (allowance.data && !allowance.data.isSpendAllowed) {
         setTradeState("approving")
@@ -298,18 +278,15 @@ export const LockedOrderCard: React.FC = () => {
           protocolAddresses!.tradeExecutor,
           requiredAmount!.decimalPlaces(0),
         )
-        // Refetch allowance
         await allowance.refetch()
       }
 
-      // Find vault
-      const vaultId = await fetchVaultForSeries(address, seriesPosition, selectedAsset)
-
-      // Execute trade
+      // Fetch signed quote and execute trade
       setTradeState("confirming")
-      const result = await executeTrade(signer, signedOrder, vaultId)
+      const signedOrder = await fetchQuote(orderData, true, selectedAsset)
+      const txHash = await executeTrade(signer, signedOrder)
 
-      setTradeTxHash(result.txHash)
+      setTradeTxHash(txHash)
       setTradeState("success")
     } catch (e) {
       setTradeError(e instanceof Error ? e.message : String(e))

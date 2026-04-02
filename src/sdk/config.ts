@@ -1,15 +1,5 @@
-/**
- * Hypersurface SDK Configuration
- *
- * Chain config, token addresses, and API endpoints for HyperEVM.
- * This file contains all the static configuration needed to interact
- * with the Hypersurface protocol.
- */
-
-export const CHAIN_ID = 999 // HyperEVM
-
 export const CHAIN_CONFIG = {
-  chainId: CHAIN_ID,
+  chainId: 999, // HyperEVM
   chainName: "HyperEVM",
   rpcUrl: "https://rpc.hyperliquid.xyz/evm",
   subgraphUrl:
@@ -25,19 +15,10 @@ export type TokenMeta = {
   symbol: string
   address: string
   decimals: number
-  isNative?: boolean
-  isCollateral?: boolean
 }
 
 /** All tokens on HyperEVM used by Hypersurface */
 export const TOKENS: Record<string, TokenMeta> = {
-  HYPE: {
-    name: "HYPE",
-    symbol: "HYPE",
-    address: "0x2222222222222222222222222222222222222222",
-    decimals: 18,
-    isNative: true,
-  },
   WHYPE: {
     name: "Wrapped HYPE",
     symbol: "WHYPE",
@@ -49,7 +30,6 @@ export const TOKENS: Record<string, TokenMeta> = {
     symbol: "USD₮0",
     address: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
     decimals: 6,
-    isCollateral: true,
   },
   UBTC: {
     name: "Unit BTC",
@@ -114,7 +94,7 @@ export const PROTOCOL_TO_CONTRACT_SYMBOL: Record<string, string> = {
   kHYPE: "kHYPE",
 }
 
-/** Maps contract token symbol (e.g., "UETH") back to underlying symbol (e.g., "ETH") */
+/** Maps contract token symbol back to underlying symbol */
 export const CONTRACT_TO_PROTOCOL_SYMBOL: Record<string, string> = {
   WHYPE: "HYPE",
   UBTC: "BTC",
@@ -132,11 +112,6 @@ export const ENABLED_ASSETS = [
   "HYPE", "BTC", "ETH", "XPL", "PUMP", "SOL", "ENA", "KNTQ", "kHYPE",
 ]
 
-/** Multipliers for certain assets (e.g., BTC uses 2x leverage) */
-export const ASSET_MULTIPLIERS: Record<string, number | undefined> = {
-  BTC: 2,
-}
-
 /** Price alias map — use another asset's price for pricing (e.g., kHYPE uses HYPE price) */
 export const PRICE_ALIAS_MAP: Record<string, string> = {
   kHYPE: "HYPE",
@@ -147,5 +122,5 @@ export const STAKED_TOKENS: Record<string, string> = {
   kHYPE: "HYPE",
 }
 
-/** Strike price decimals used by the protocol (8 decimals) */
+/** Strike price decimals used by the protocol */
 export const STRIKE_PRICE_DECIMALS = 8

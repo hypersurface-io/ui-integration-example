@@ -1,35 +1,13 @@
-/**
- * Hypersurface SDK GraphQL Queries
- *
- * Subgraph queries for fetching on-chain data.
- * These are plain strings compatible with graphql-request.
- */
-
 /** Fetch pools with underlying assets metadata */
 export const TRADE_QUERY = `
   query GetTradeData {
     pools {
       id
       tokenSymbol
-      strikeAsset {
-        id
-        symbol
-        name
-        decimals
-      }
-      collateralAsset {
-        id
-        symbol
-        name
-        decimals
-      }
+      strikeAsset { id symbol decimals }
+      collateralAsset { id symbol decimals }
       underlyingAssets {
-        asset {
-          id
-          symbol
-          name
-          decimals
-        }
+        asset { id symbol decimals }
         enabled
       }
     }
@@ -41,26 +19,10 @@ export const UNDERLYING_ASSETS_QUERY = `
   query GetUnderlyingAssets {
     pools(first: 1) {
       id
-      collateralAsset {
-        id
-        symbol
-        name
-        decimals
-      }
-      strikeAsset {
-        id
-        symbol
-        name
-        decimals
-      }
+      collateralAsset { id symbol }
+      strikeAsset { id symbol }
       underlyingAssets {
-        id
-        asset {
-          id
-          symbol
-          name
-          decimals
-        }
+        asset { id symbol decimals }
         enabled
       }
     }
@@ -93,27 +55,10 @@ export const OTOKENS_QUERY = `
     ) {
       id
       strikePrice
-      decimals
       expiryTimestamp
       isPut
-      underlyingAsset {
-        id
-        symbol
-        name
-        decimals
-      }
-      collateralAsset {
-        id
-        symbol
-        name
-        decimals
-      }
-      strikeAsset {
-        id
-        symbol
-        name
-        decimals
-      }
+      underlyingAsset { id }
+      collateralAsset { id }
     }
   }
 `
@@ -138,28 +83,6 @@ export const OTOKEN_QUERY = `
       first: 1
     ) {
       id
-      strikePrice
-      decimals
-      expiryTimestamp
-      isPut
-      underlyingAsset {
-        id
-        symbol
-        name
-        decimals
-      }
-      collateralAsset {
-        id
-        symbol
-        name
-        decimals
-      }
-      strikeAsset {
-        id
-        symbol
-        name
-        decimals
-      }
     }
   }
 `
@@ -170,12 +93,9 @@ export const ACCOUNT_VAULTS_QUERY = `
     account(id: $owner) {
       id
       vaults {
-        id
         vaultId
         otokens {
-          token {
-            id
-          }
+          token { id }
         }
       }
     }
