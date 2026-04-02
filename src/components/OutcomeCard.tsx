@@ -30,7 +30,7 @@ export const OutcomeCard: React.FC<OutcomeCardProps> = ({
       <div className="bg-gray-900 text-center py-2 px-3 text-sm text-gray-400">
         If on{" "}
         <span className="text-gray-200 font-mono">
-          {expiration ? dayjs.unix(expiration).format("M/D/YYYY") : "\u2014"}
+          {expiration ? dayjs.unix(expiration).format("M/D/YYYY") : "—"}
         </span>{" "}
         {assetSymbol} is
       </div>
@@ -41,7 +41,7 @@ export const OutcomeCard: React.FC<OutcomeCardProps> = ({
         <div className="flex-1 p-3 border-r border-dashed border-gray-700">
           <div className="font-bold text-sm text-gray-200">BELOW</div>
           <div className="font-mono text-sm text-gray-400 mt-1">
-            {strikePrice ? formatPrice(strikePrice) : "\u2014"}
+            {strikePrice ? formatPrice(strikePrice) : "—"}
           </div>
           <div className="text-sm text-gray-400 mt-2">
             {isSellDirection ? "Get back" : "Receive"}
@@ -53,7 +53,7 @@ export const OutcomeCard: React.FC<OutcomeCardProps> = ({
                 <span className="text-xs text-gray-400">{contractSymbol}</span>
               </>
             ) : (
-              <span>\u2014</span>
+              <span>—</span>
             )}
           </div>
         </div>
@@ -62,7 +62,7 @@ export const OutcomeCard: React.FC<OutcomeCardProps> = ({
         <div className="flex-1 p-3 text-right">
           <div className="font-bold text-sm text-gray-200">ABOVE</div>
           <div className="font-mono text-sm text-gray-400 mt-1">
-            {strikePrice ? formatPrice(strikePrice) : "\u2014"}
+            {strikePrice ? formatPrice(strikePrice) : "—"}
           </div>
           <div className="text-sm text-gray-400 mt-2">
             {isSellDirection ? "Receive" : "Get back"}
@@ -74,7 +74,7 @@ export const OutcomeCard: React.FC<OutcomeCardProps> = ({
                 <span className="text-xs text-gray-400">{strikeTokenSymbol}</span>
               </>
             ) : (
-              <span>\u2014</span>
+              <span>—</span>
             )}
           </div>
         </div>

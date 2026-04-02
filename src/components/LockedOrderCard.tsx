@@ -173,13 +173,21 @@ export const LockedOrderCard: React.FC = () => {
   }, [selectedStrike, amount, isSellDirection])
 
   // Token symbols
+  // Asset selector always shows the underlying contract symbol (e.g. UETH, WHYPE)
+  const assetDisplaySymbol = useMemo(() => {
+    if (!selectedAsset) return ""
+    return PROTOCOL_TO_CONTRACT_SYMBOL[selectedAsset.symbol] || selectedAsset.symbol
+  }, [selectedAsset])
+
+  // Collateral symbol depends on direction:
+  // Covered call (sell): underlying contract token; Cash-secured put (buy): strike/stablecoin
   const collateralSymbol = useMemo(() => {
     if (!selectedAsset) return ""
     if (isSellDirection) {
       return PROTOCOL_TO_CONTRACT_SYMBOL[selectedAsset.symbol] || selectedAsset.symbol
     }
-    return selectedAsset.strikeAsset?.symbol || "USD\u20ae0"
-  }, [selectedAsset, isSellDirection])
+    return selectedSeries?.collateralTokenSymbol || selectedAsset.strikeAsset?.symbol || "USD\u20ae0"
+  }, [selectedAsset, isSellDirection, selectedSeries])
 
   const strikeTokenSymbol = selectedSeries?.strikeTokenSymbol || selectedAsset?.strikeAsset?.symbol || "USD\u20ae0"
 
@@ -333,11 +341,6 @@ export const LockedOrderCard: React.FC = () => {
 
   return (
     <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 space-y-4">
-      {/* Header */}
-      <h2 className="text-center text-base font-medium">
-        Get Paid While You Wait
-      </h2>
-
       {/* Buy/Sell Toggle */}
       <div className="bg-gray-800 rounded-lg p-0.5 flex">
         <button
@@ -378,7 +381,7 @@ export const LockedOrderCard: React.FC = () => {
               onClick={() => setShowAssetMenu(!showAssetMenu)}
               className="flex items-center gap-2 bg-gray-700 rounded-full px-3 py-1.5 hover:bg-gray-600 transition-colors"
             >
-              <span className="text-sm font-medium">{collateralSymbol}</span>
+              <span className="text-sm font-medium">{assetDisplaySymbol}</span>
               <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
