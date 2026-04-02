@@ -56,14 +56,26 @@ export type UnderlyingAsset = {
 export type Series = {
   id: string // Unique identifier (e.g., "ETH-04APR26-2500-C")
   poolAddress: string
-  underlyingTokenSymbol: string
+
   underlyingTokenAddress: string
+  underlyingTokenSymbol: string
+  underlyingTokenName: string
+  underlyingTokenDecimals: number
+
   collateralTokenAddress: string
   collateralTokenSymbol: string
+  collateralTokenName: string
+  collateralTokenDecimals: number
+
   strikeTokenAddress: string
   strikeTokenSymbol: string
+  strikeTokenName: string
+  strikeTokenDecimals: number
+
+  pair: string
   strikePrice: number
   expiration: number // UNIX timestamp
+  underlyingAssetPrice: number
   type: OptionType
   side: OptionSide
   premium: number

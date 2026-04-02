@@ -18,7 +18,7 @@ export * from "./types"
 export * from "./queries"
 
 // API — pure async functions (framework-agnostic)
-// export * from "./api"
+export * from "./api"
 
 // Hooks — React hook wrappers (useState/useEffect based)
 // export * from "./hooks"
