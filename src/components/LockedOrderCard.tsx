@@ -32,6 +32,15 @@ const formatPrice = (n: number): string => {
 const formatPercent = (n: number): string =>
   `${(n * 100).toFixed(1)}%`
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const parseError = (e: any): string => {
+  if (typeof e === "string") return e
+  // Ethers v5 errors: check reason, shortMessage, then nested error
+  const msg = e?.reason || e?.shortMessage || e?.error?.message || e?.data?.message || e?.message
+  if (typeof msg === "string" && msg.length > 0) return msg
+  return "An unknown error occurred"
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const LockedOrderCard: React.FC = () => {
@@ -289,7 +298,7 @@ export const LockedOrderCard: React.FC = () => {
       setTradeTxHash(txHash)
       setTradeState("success")
     } catch (e) {
-      setTradeError(e instanceof Error ? e.message : String(e))
+      setTradeError(parseError(e))
       setTradeState("error")
     }
   }, [signer, address, selectedSeries, selectedAsset, selectedExpiry, amount, isSellDirection, allowance, collateralTokenAddress, protocolAddresses, requiredAmount])
