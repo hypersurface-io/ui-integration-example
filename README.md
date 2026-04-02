@@ -1,6 +1,6 @@
 # Locked Order Example
 
-A standalone integration example for **Locked Orders** — covered calls and cash-secured puts presented as simple limit orders with an upfront premium. Built on the [Hypersurface](https://hypersurface.finance) protocol.
+A standalone integration example for **Locked Orders** — covered calls and cash-secured puts presented as simple limit orders with an upfront premium. Built on the [Hypersurface](https://app.hypersurface.io) protocol.
 
 Users set a target price, lock their assets, and get paid upfront. No options knowledge required.
 
@@ -67,7 +67,7 @@ function MyComponent() {
   const { data: series } = useSeries(assets?.[0], "CoveredCall")
 
   // assets = available underlying tokens with prices
-  // series = available option series with premiums, APR, greeks
+  // series = available option series with premiums and APR
 }
 ```
 
@@ -85,18 +85,15 @@ const series = await fetchSeries(assets[0], "CoveredCall")
 ```ts
 import { fetchQuote, executeTrade, approveToken, checkAllowance } from "./sdk"
 
-// Build order data
+// Build order data — leg amounts use 8 decimals (STRIKE_PRICE_DECIMALS)
 const orderData = {
   account: userAddress,
   poolAddress: series.poolAddress,
   underlying: asset.id,
-  collateral: asset.id, // For covered calls
-  referrer: "0x0000000000000000000000000000000000000000",
-  legs: [{ symbol: series.id, amount: "-1000000000000000000" }],
+  collateral: asset.id, // For covered calls; use asset.collateralAsset.id for puts
+  referrer: "0x0000000000000000000000000000000000000000", // See "Referral Fees" below
+  legs: [{ symbol: series.id, amount: "-100000000" }], // 1 contract = 1e8
 }
-
-// Get signed quote
-const signedOrder = await fetchQuote(orderData, true, asset)
 
 // Check allowance and approve if needed
 const allowance = await checkAllowance(provider, tokenAddress, spenderAddress, userAddress, requiredAmount)
@@ -104,13 +101,30 @@ if (!allowance.isSpendAllowed) {
   await approveToken(signer, tokenAddress, spenderAddress, requiredAmount)
 }
 
-// Execute trade
-const result = await executeTrade(signer, signedOrder, vaultId)
+// Get signed quote and execute — fetch the quote right before trading to avoid expiry
+const signedOrder = await fetchQuote(orderData, true, asset)
+const txHash = await executeTrade(signer, signedOrder)
 ```
 
 ### Step 5: Wallet connection
 
 The SDK takes an ethers v5 `Signer` — use your own wallet connection. The sample app uses RainbowKit, but any wallet provider works.
+
+## Referral Fees
+
+Integrators can earn referral fees on every trade by passing their address as the `referrer` field in the order data:
+
+```ts
+const orderData = {
+  // ...
+  referrer: "0xYOUR_REFERRER_ADDRESS_HERE",
+  // ...
+}
+```
+
+When a user trades through your integration with your referrer address set, you earn a share of the protocol fees. Note: currently the protocol fees are set to 0. Please get in touch to learn more about the partner program.
+
+To use the zero address (`0x0000...`) or omit the referrer means no referral fee is collected.
 
 ## SDK API Reference
 
@@ -121,10 +135,9 @@ The SDK takes an ethers v5 `Signer` — use your own wallet connection. The samp
 | `fetchAssets()` | — | `UnderlyingAsset[]` | Fetch available assets with live prices |
 | `fetchSeries(asset, strategyType?)` | `UnderlyingAsset`, `"CoveredCall" \| "CashSecuredPut"` | `Series[]` | Fetch option series with premiums and APR |
 | `fetchQuote(orderData, sign, asset?)` | `SeriesOrderData`, `boolean`, `UnderlyingAsset?` | `IOrderUtil.OrderStruct` | Get a signed quote from the market maker |
-| `executeTrade(signer, signedOrder, vaultId?)` | `ethers.Signer`, `OrderStruct`, `string?` | `TradeResult` | Execute trade on-chain |
+| `executeTrade(signer, signedOrder)` | `ethers.Signer`, `OrderStruct` | `string` (txHash) | Execute trade on-chain |
 | `checkAllowance(provider, token, spender, user, amount)` | `Provider`, addresses, `BN` | `AllowanceResult` | Check token approval status |
 | `approveToken(signer, token, spender, amount)` | `Signer`, addresses, `BN` | `ContractReceipt` | Approve token spending |
-| `fetchVaultForSeries(user, series, asset)` | `string`, `SeriesPosition`, `UnderlyingAsset` | `string` | Find existing vault or return "0" |
 | `fetchAddresses(provider)` | `Provider` | `ProtocolAddresses` | Fetch protocol contract addresses |
 
 ### React Hooks (`hooks.ts`)
