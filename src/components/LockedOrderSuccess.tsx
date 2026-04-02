@@ -81,7 +81,7 @@ export const LockedOrderSuccess: React.FC<LockedOrderSuccessProps> = ({
 
       {/* Actions */}
       <button
-        onClick={() => window.open("https://app.hypersurface.finance/positions", "_blank")}
+        onClick={() => window.open("https://app.hypersurface.io/positions", "_blank")}
         className="w-full py-3 px-4 bg-white text-gray-900 rounded-xl font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
       >
         View on Hypersurface

@@ -558,10 +558,13 @@ export async function fetchQuote(
     }
   }
 
+  const requestBody = { sign, order: adjustedOrder }
+  console.log("Quote API request:", JSON.stringify(requestBody, null, 2))
+
   const res = await fetch(`${CHAIN_CONFIG.quoteProviderUrl}/quote`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sign, order: adjustedOrder }),
+    body: JSON.stringify(requestBody),
   })
 
   if (!res.ok) {
@@ -571,6 +574,7 @@ export async function fetchQuote(
   }
 
   const data: { result: { order: IOrderUtil.OrderStruct } } = await res.json()
+  console.log("Quote API response:", JSON.stringify(data, null, 2))
   return data.result.order
 }
 
@@ -590,8 +594,12 @@ export async function executeTrade(
     signer,
   )
 
-  const isNewVault = vaultId === "0"
-  const tx = await poolContract.trade(signedOrder, vaultId, isNewVault, {
+  // TODO: temporarily force new vault creation to debug vault lookup issue
+  const isNewVault = true
+  const effectiveVaultId = "0"
+  console.log("Trade params:", { signedOrder, vaultId: effectiveVaultId, isNewVault })
+  console.log("Trade order JSON:", JSON.stringify(signedOrder, null, 2))
+  const tx = await poolContract.trade(signedOrder, effectiveVaultId, isNewVault, {
     gasLimit: 1500000,
   })
   const receipt = await tx.wait(1)

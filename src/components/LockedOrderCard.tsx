@@ -193,14 +193,19 @@ export const LockedOrderCard: React.FC = () => {
 
   // Allowance check
   const { data: protocolAddresses } = useAddresses(provider)
+  // For covered calls, collateral is the underlying token (e.g. WHYPE 18 decimals)
+  // For cash-secured puts, collateral is the pool's collateral token (e.g. USDT0 6 decimals)
+  const collateralDecimals = isSellDirection
+    ? (selectedAsset?.decimals ?? 18)
+    : (selectedSeries?.collateralTokenDecimals ?? 6)
   const requiredAmount = useMemo(() => {
     if (!selectedStrike || !Number(amount) || !selectedSeries) return undefined
     const size = new BN(amount)
     if (!isSellDirection) {
-      return size.multipliedBy(selectedStrike).shiftedBy(selectedSeries.collateralTokenDecimals)
+      return size.multipliedBy(selectedStrike).shiftedBy(collateralDecimals)
     }
-    return size.shiftedBy(selectedSeries.collateralTokenDecimals)
-  }, [selectedStrike, amount, isSellDirection, selectedSeries])
+    return size.shiftedBy(collateralDecimals)
+  }, [selectedStrike, amount, isSellDirection, selectedSeries, collateralDecimals])
 
   const collateralTokenAddress = useMemo(() => {
     if (!selectedSeries || !selectedAsset) return undefined
@@ -255,11 +260,13 @@ export const LockedOrderCard: React.FC = () => {
       }
 
       // Build order data
-      const sizeInContracts = new BN(amount)
+      // Order leg amounts use 8 decimals (STRIKE_PRICE_DECIMALS), not token decimals
+      const STRIKE_PRICE_DECIMALS = 8
+      const sizeInContracts = new BN(amount).decimalPlaces(6, BN.ROUND_DOWN)
       const rawAmount = sizeInContracts
-        .multipliedBy(new BN(10).pow(selectedSeries.underlyingTokenDecimals))
+        .multipliedBy(new BN(10).pow(STRIKE_PRICE_DECIMALS))
         .negated() // Sell side
-        .decimalPlaces(0)
+        .decimalPlaces(0, BN.ROUND_DOWN)
         .toFixed()
 
       const orderData = {
