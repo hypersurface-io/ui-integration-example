@@ -75,23 +75,21 @@ export const LockedOrderCard: React.FC = () => {
     { refetchInterval: 15_000 },
   )
 
-  // Available expirations (at least 5 days out)
+  // Compute all available expirations
   const availableExpirations = useMemo(() => {
     if (!seriesList || seriesList.length === 0) return []
-    const now = Math.floor(Date.now() / 1000)
-    const fiveDays = 5 * 24 * 60 * 60
     return [...new Set(seriesList.map((s) => s.expiration))]
-      .filter((exp) => exp - now >= fiveDays)
       .sort()
   }, [seriesList])
 
-  // Default to closest Friday
+  // Default expiry: closest Friday at least 5 days out, falling back to first expiry >= 5 days, then first available
   const defaultExpiry = useMemo(() => {
     if (availableExpirations.length === 0) return undefined
-    const friday = availableExpirations.find(
-      (exp) => new Date(exp * 1000).getUTCDay() === 5,
-    )
-    return friday || availableExpirations[0]
+    const now = Math.floor(Date.now() / 1000)
+    const minSecondsOut = 5 * 24 * 60 * 60
+    const atLeastFiveDays = availableExpirations.filter((exp) => exp - now >= minSecondsOut)
+    const fridayExp = atLeastFiveDays.find((exp) => new Date(exp * 1000).getUTCDay() === 5)
+    return fridayExp || atLeastFiveDays[0] || availableExpirations[0]
   }, [availableExpirations])
 
   // Auto-select/reset expiry
